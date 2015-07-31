@@ -3,7 +3,7 @@
 /**
  * Plugin Name: 404 Error log report by Duo Leaf
  * Plugin URI: http://DuoLeaf.com/
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Duo Leaf
  * Author URI: http://DuoLeaf.com/404-error-log-report/
  * Description: 
@@ -52,10 +52,11 @@ class dl_elr_ErrorLogReport {
 
     function adminPanelsAndMetaBoxes() {
         add_submenu_page('tools.php', $this->pluginInfo->displayName, $this->pluginInfo->displayName, 'manage_options', $this->pluginInfo->name, array(&$this, 'adminPanel'));
-        add_action('admin_enqueue_scripts', array(&$this, 'adminEnqueueScripts'));
     }
 
     function adminPanel() {
+
+        add_action('admin_enqueue_scripts', array(&$this, 'adminEnqueueScripts'));
 
         $this->view = new stdClass();
 
@@ -67,16 +68,15 @@ class dl_elr_ErrorLogReport {
             return;
 
         global $wpdb;
-        
+
         $log = new dl_elr_Log();
         $log->url = $_SERVER['REQUEST_URI'];
         $log->date = current_time('mysql');
-        
+
         $logArray = get_object_vars($log);
 
         $wpdb->insert($this->pluginInfo->tableLogName, $logArray);
-        $this->view->resource->id = $wpdb->insert_id;
-        
+
         $this->removeOldRecords();
     }
 
@@ -86,8 +86,6 @@ class dl_elr_ErrorLogReport {
 
         $qtdRegistros = $wpdb->get_row('SELECT COUNT(*) AS Qtd FROM ' . $this->pluginInfo->tableLogName . ';');
 
-        echo $qtdRegistros->Qtd;
-
         if ($qtdRegistros->Qtd > 100) {
 
             $qtdRemover = $qtdRegistros->Qtd - 100;
@@ -95,7 +93,7 @@ class dl_elr_ErrorLogReport {
             $wpdb->query($wpdb->prepare('DELETE FROM `' . $this->pluginInfo->tableLogName . '` ORDER BY date ASC LIMIT %d ;', $qtdRemover));
         }
     }
-    
+
     function adminEnqueueScripts() {
         wp_register_script('dl_acj_customJS', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/js/custom.js', array('jquery'), NULL);
         wp_enqueue_script('dl_acj_customJS');
