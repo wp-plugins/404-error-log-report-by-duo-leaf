@@ -3,12 +3,15 @@
 /**
  * Plugin Name: 404 Error log report by Duo Leaf
  * Plugin URI: http://DuoLeaf.com/
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Duo Leaf
  * Author URI: http://DuoLeaf.com/404-error-log-report/
  * Description: 
  * License: GPLv3 or later
  */
+require_once(WP_PLUGIN_DIR . '/404-error-log-report-by-duo-leaf/duo-leaf/duoleaf.php');
+
+
 require_once(WP_PLUGIN_DIR . '/404-error-log-report-by-duo-leaf/core/plugin-info.php');
 require_once(WP_PLUGIN_DIR . '/404-error-log-report-by-duo-leaf/core/log.php');
 
@@ -48,15 +51,16 @@ class dl_elr_ErrorLogReport {
 
         add_action('admin_menu', array(&$this, 'adminPanelsAndMetaBoxes'));
         add_action('template_redirect', array($this, 'log'));
+        add_action('admin_enqueue_scripts', array(&$this, 'adminRegisterScripts'));
     }
 
     function adminPanelsAndMetaBoxes() {
-        add_submenu_page('tools.php', $this->pluginInfo->displayName, $this->pluginInfo->displayName, 'manage_options', $this->pluginInfo->name, array(&$this, 'adminPanel'));
+        add_submenu_page('duo-leaf', $this->pluginInfo->smallDisplayName, $this->pluginInfo->smallDisplayName, 'manage_options', $this->pluginInfo->name, array(&$this, 'adminPanel'));
     }
 
-    function adminPanel() {
+    public function adminPanel() {
 
-        add_action('admin_enqueue_scripts', array(&$this, 'adminEnqueueScripts'));
+        $this->adminEnqueueScripts();
 
         $this->view = new stdClass();
 
@@ -93,18 +97,22 @@ class dl_elr_ErrorLogReport {
             $wpdb->query($wpdb->prepare('DELETE FROM `' . $this->pluginInfo->tableLogName . '` ORDER BY date ASC LIMIT %d ;', $qtdRemover));
         }
     }
+    
+    function adminRegisterScripts() {
+        wp_register_script('dl_acj_customJS', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/js/custom.js', array('jquery'), NULL);
+        wp_register_script('dl_acj_bootstrap', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/js/bootstrap.min.js', array('jquery'), NULL);
+        
+        wp_enqueue_style('dl_acj_css_custom', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/css/custom.css', array(), null, 'all');
+        wp_enqueue_style('dl_acj_css_bootstrap', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/css/bootstrap-iso.css', array(), null, 'all');
+        wp_enqueue_style('dl_acj_css_bootstrap_theme', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/css/bootstrap-theme.css', array(), null, 'all');
+    }
 
     function adminEnqueueScripts() {
-        wp_register_script('dl_acj_customJS', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/js/custom.js', array('jquery'), NULL);
         wp_enqueue_script('dl_acj_customJS');
-        wp_register_script('dl_acj_bootstrap', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/js/bootstrap.min.js', array('jquery'), NULL);
         wp_enqueue_script('dl_acj_bootstrap');
-
-        wp_enqueue_style('dl_acj_css_custom', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/css/custom.css', array(), null, 'all');
+        
         wp_enqueue_script('dl_acj_css_custom');
-        wp_enqueue_style('dl_acj_css_bootstrap', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/css/bootstrap-iso.css', array(), null, 'all');
         wp_enqueue_script('dl_acj_css_bootstrap');
-        wp_enqueue_style('dl_acj_css_bootstrap_theme', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/css/bootstrap-theme.css', array(), null, 'all');
         wp_enqueue_script('dl_acj_css_bootstrap_theme');
     }
 

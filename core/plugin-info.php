@@ -6,6 +6,7 @@ class dl_elr_PluginInfo {
      * Properties
      */
     public $name;
+    public $smallDisplayName;
     public $displayName;
     public $tableLogName;
 
@@ -15,7 +16,8 @@ class dl_elr_PluginInfo {
     public function __construct() {
 
         $this->name = "404-error-log-report-by-duo-leaf";
-        $this->displayName = "404 Error log report by Duo Leaf";
+        $this->smallDisplayName = "404 Error log report";
+        $this->displayName = $this->smallDisplayName . " by Duo Leaf";
 
         global $wpdb;
 
