@@ -2,7 +2,7 @@
 Contributors: DuoLeaf
 Tags: javascript, js, css, inject
 Requires at least: 3.0.0
-Tested up to: 4.2.4
+Tested up to: 4.3.1
 Stable tag: trunk
 License: GPLv3
 
@@ -37,6 +37,10 @@ This section describes how to install the plugin and get it working.
 
 
 == Changelog ==
+
+= 1.0.3 =
+* Added user agent column
+
 
 = 1.0.2 =
 * Bug Fix

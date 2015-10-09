@@ -3,122 +3,55 @@
 /**
  * Plugin Name: 404 Error log report by Duo Leaf
  * Plugin URI: http://DuoLeaf.com/
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Duo Leaf
  * Author URI: http://DuoLeaf.com/404-error-log-report/
- * Description: 
+ * Description: Generate a report of 404 errors that occurs in your site.
  * License: GPLv3 or later
  */
 require_once(WP_PLUGIN_DIR . '/404-error-log-report-by-duo-leaf/duo-leaf/duoleaf.php');
-
-
 require_once(WP_PLUGIN_DIR . '/404-error-log-report-by-duo-leaf/core/plugin-info.php');
-require_once(WP_PLUGIN_DIR . '/404-error-log-report-by-duo-leaf/core/log.php');
-
-
-register_activation_hook(__FILE__, 'dl_elr_pluginActivation');
-
-function dl_elr_pluginActivation() {
-
-    global $wpdb;
-
-    $pluginInfo = new dl_elr_PluginInfo();
-
-    if ($wpdb->get_var("SHOW TABLES LIKE '$pluginInfo->tableLogName'") != $pluginInfo->tableLogName) {
-
-        $sql = "CREATE TABLE `$pluginInfo->tableLogName` (
-                `id` INT( 11 ) NOT NULL AUTO_INCREMENT,
-                `url` TEXT NOT NULL,
-                `date` TIMESTAMP NULL,
-                PRIMARY KEY(id)
-            );";
-
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($sql);
-    }
-}
+require_once(WP_PLUGIN_DIR . '/404-error-log-report-by-duo-leaf/core/types.php');
+require_once(WP_PLUGIN_DIR . '/404-error-log-report-by-duo-leaf/core/storage.php');
+require_once(WP_PLUGIN_DIR . '/404-error-log-report-by-duo-leaf/core/logger.php');
+require_once(WP_PLUGIN_DIR . '/404-error-log-report-by-duo-leaf/core/admin-area.php');
+require_once(WP_PLUGIN_DIR . '/404-error-log-report-by-duo-leaf/core/upgrade-manager.php');
 
 class dl_elr_ErrorLogReport {
 
-    /** @var dl_ift_PluginInfo */
+    /** @var dl_elr_PluginInfo */
     public $pluginInfo;
+
+    /** @var dl_elr_Storage */
+    public $storage;
+
+    /** @var dl_elr_AdminArea */
+    public $adminArea;
+
+    /** @var dl_elr_UpgradeManager */
+    public $upgradeManager;
+
+    /** @var dl_elr_Logger */
+    public $logger;
 
     /**
      * Constructor
      */
-    public function __construct($pluginInfo) {
+    public function __construct($pluginInfo, $storage, $adminArea, $upgradeManager, $logger) {
         $this->pluginInfo = $pluginInfo;
-
-        add_action('admin_menu', array(&$this, 'adminPanelsAndMetaBoxes'));
-        add_action('template_redirect', array($this, 'log'));
-        add_action('admin_enqueue_scripts', array(&$this, 'adminRegisterScripts'));
-    }
-
-    function adminPanelsAndMetaBoxes() {
-        add_submenu_page('duo-leaf', $this->pluginInfo->smallDisplayName, $this->pluginInfo->smallDisplayName, 'manage_options', $this->pluginInfo->name, array(&$this, 'adminPanel'));
-    }
-
-    public function adminPanel() {
-
-        $this->adminEnqueueScripts();
-
-        $this->view = new stdClass();
-
-        include_once(WP_PLUGIN_DIR . '/' . $this->pluginInfo->name . '/actions/report.php');
-    }
-
-    function log() {
-        if (!is_404())
-            return;
-
-        global $wpdb;
-
-        $log = new dl_elr_Log();
-        $log->url = $_SERVER['REQUEST_URI'];
-        $log->date = current_time('mysql');
-
-        $logArray = get_object_vars($log);
-
-        $wpdb->insert($this->pluginInfo->tableLogName, $logArray);
-
-        $this->removeOldRecords();
-    }
-
-    function removeOldRecords() {
-
-        global $wpdb;
-
-        $qtdRegistros = $wpdb->get_row('SELECT COUNT(*) AS Qtd FROM ' . $this->pluginInfo->tableLogName . ';');
-
-        if ($qtdRegistros->Qtd > 100) {
-
-            $qtdRemover = $qtdRegistros->Qtd - 100;
-
-            $wpdb->query($wpdb->prepare('DELETE FROM `' . $this->pluginInfo->tableLogName . '` ORDER BY date ASC LIMIT %d ;', $qtdRemover));
-        }
-    }
-    
-    function adminRegisterScripts() {
-        wp_register_script('dl_acj_customJS', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/js/custom.js', array('jquery'), NULL);
-        wp_register_script('dl_acj_bootstrap', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/js/bootstrap.min.js', array('jquery'), NULL);
+        $this->storage = $storage;
+        $this->adminArea = $adminArea;
+        $this->upgradeManager = $upgradeManager;
+        $this->logger = $logger;
         
-        wp_enqueue_style('dl_acj_css_custom', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/css/custom.css', array(), null, 'all');
-        wp_enqueue_style('dl_acj_css_bootstrap', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/css/bootstrap-iso.css', array(), null, 'all');
-        wp_enqueue_style('dl_acj_css_bootstrap_theme', WP_PLUGIN_URL . '/' . $this->pluginInfo->name . '/assets/css/bootstrap-theme.css', array(), null, 'all');
-    }
-
-    function adminEnqueueScripts() {
-        wp_enqueue_script('dl_acj_customJS');
-        wp_enqueue_script('dl_acj_bootstrap');
-        
-        wp_enqueue_script('dl_acj_css_custom');
-        wp_enqueue_script('dl_acj_css_bootstrap');
-        wp_enqueue_script('dl_acj_css_bootstrap_theme');
     }
 
 }
 
 $dl_elr_pluginInfo = new dl_elr_PluginInfo();
-$dl_elr_ErrorLogReport = new dl_elr_ErrorLogReport($dl_elr_pluginInfo);
+$dl_elr_Storage = new dl_elr_Storage($dl_elr_pluginInfo);
+$dl_elr_UpgradeManager = new dl_elr_UpgradeManager($dl_elr_pluginInfo);
+$dl_elr_AdminArea = new dl_elr_AdminArea($dl_elr_pluginInfo, $dl_elr_Storage, $_GET, $_POST);
+$dl_elr_Logger = new dl_elr_Logger($dl_elr_pluginInfo);
 
-
+$dl_elr_ErrorLogReport = new dl_elr_ErrorLogReport($dl_elr_pluginInfo, $dl_elr_Storage, $dl_elr_AdminArea, $dl_elr_UpgradeManager, $dl_elr_Logger);

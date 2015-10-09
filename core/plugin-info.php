@@ -9,6 +9,7 @@ class dl_elr_PluginInfo {
     public $smallDisplayName;
     public $displayName;
     public $tableLogName;
+    public $currentVersion;
 
     /**
      * Constructor
@@ -18,6 +19,7 @@ class dl_elr_PluginInfo {
         $this->name = "404-error-log-report-by-duo-leaf";
         $this->smallDisplayName = "404 Error log report";
         $this->displayName = $this->smallDisplayName . " by Duo Leaf";
+        $this->currentVersion = '1.0.3';
 
         global $wpdb;
 

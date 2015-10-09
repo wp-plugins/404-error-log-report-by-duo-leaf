@@ -8,6 +8,7 @@ class dl_elr_Log {
     public $id = 0;
     public $url = '';
     public $date = '';
+    public $useragent = '';
     
 }
 
