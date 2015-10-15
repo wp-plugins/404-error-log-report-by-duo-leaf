@@ -33,8 +33,13 @@ class dl_erl_ViewReport {
                                     <?php foreach ($this->view->logs as $log) { ?>
                                         <tr>
                                             <td><?php echo $log->url; ?></td>
-                                            <td><?php echo $log->date; ?></td>
-                                            <td><?php echo $log->useragent; ?></td>
+                                            <td>
+                                                <?php echo $log->date; ?>
+                                            </td>
+                                            <td>
+                                                <img src="<?php echo  WP_PLUGIN_URL . '/' . $this->view->pluginInfo->name . '/assets/img/browsers/' . $this->view->userAgentIdentification->getBrowserLabel($log->useragent); ?>.png" />
+                                                <span data-toggle="tooltip" data-placement="top" title="<?php echo 'User agent: ' . $log->useragent; ?>"><?php echo $this->view->userAgentIdentification->getBrowserLabel($log->useragent); ?><span>
+                                            </td>
                                         </tr>
                                     <?php } ?>
                                 </tbody>

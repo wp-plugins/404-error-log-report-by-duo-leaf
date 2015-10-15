@@ -3,10 +3,10 @@
 /**
  * Plugin Name: 404 Error log report by Duo Leaf
  * Plugin URI: http://DuoLeaf.com/
- * Version: 1.0.3
+ * Version: 1.0.4
  * Author: Duo Leaf
  * Author URI: http://DuoLeaf.com/404-error-log-report/
- * Description: Generate a report of 404 errors that occurs in your site.
+ * Description: Generate a report of 404 (page not found) errors that occurs in your site.
  * License: GPLv3 or later
  */
 require_once(WP_PLUGIN_DIR . '/404-error-log-report-by-duo-leaf/duo-leaf/duoleaf.php');

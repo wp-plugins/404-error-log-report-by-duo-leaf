@@ -31,6 +31,11 @@ class dl_erl_ActionReport {
         $view->logs = $wpdb->get_results('SELECT * FROM ' . $this->pluginInfo->tableLogName . ' ORDER BY date DESC;');
         $view->pluginInfo = $this->pluginInfo;
         
+        require_once(WP_PLUGIN_DIR . '/404-error-log-report-by-duo-leaf/core/useragent-identification.php');
+        $view->userAgentIdentification = new dl_elr_userAgentIdentification();
+
+        
+        
         return $view;
     }
 
