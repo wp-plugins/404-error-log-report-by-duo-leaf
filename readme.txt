@@ -43,6 +43,9 @@ This section describes how to install the plugin and get it working.
 
 == Changelog ==
 
+= 1.0.5 =
+* Bugfix and improvements
+
 = 1.0.4 =
 * Improved browser info
 

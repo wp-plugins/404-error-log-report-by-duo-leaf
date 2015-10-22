@@ -3,7 +3,7 @@
 /**
  * Plugin Name: 404 Error log report by Duo Leaf
  * Plugin URI: http://DuoLeaf.com/
- * Version: 1.0.4
+ * Version: 1.0.5
  * Author: Duo Leaf
  * Author URI: http://DuoLeaf.com/404-error-log-report/
  * Description: Generate a report of 404 (page not found) errors that occurs in your site.
